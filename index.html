@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Page : Salut je m'apelle teddy si ta scan ca c'est que t'es intrigué si tu veux faire plus connaissance envoie un msg sur ma boite mail teddybreuil@gmail.com et je pourrait te passer mon num (et pk pas envoi une photo de toi )</title>
+  <style>
+    :root{--bg:#0f172a;--card:#0b1220;--accent:#7c3aed;--text:#e6eef8}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#071129 0%, #07223b 100%);color:var(--text)}
+    .wrap{width:960px;max-width:95%;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:20px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    h1{margin:0 0 8px;font-size:18px}
+    label{display:block;font-size:13px;margin-top:12px;color:rgba(230,238,248,0.9)}
+    input[type=text], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--text);font-size:14px}
+    textarea{min-height:120px;resize:vertical}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{padding:9px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer;font-weight:600}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06)}
+    .preview{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:260px;border-radius:10px}
+    .messageCard{width:100%;padding:24px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));text-align:center}
+    .name{font-size:22px;margin-bottom:6px;font-weight:700}
+    .message{font-size:16px;line-height:1.4;color:rgba(230,238,248,0.95)}
+    .small{font-size:12px;color:rgba(230,238,248,0.6);margin-top:8px}
+    footer{grid-column:1/-1;margin-top:8px;text-align:center;color:rgba(230,238,248,0.5);font-size:12px}
+    @media (max-width:720px){.wrap{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Entrez votre nom et message</h1>
+      <label for="name">Nom</label>
+      <input id="name" type="text" placeholder="Ton nom" />
+
+      <label for="message">Message</label>
+      <textarea id="message" placeholder="Écris ton message ici..."></textarea>
+
+      <label for="align">Alignement du texte</label>
+      <select id="align">
+        <option value="center">Centré</option>
+        <option value="left">Gauche</option>
+        <option value="right">Droite</option>
+      </select>
+
+      <div class="controls">
+        <button id="applyBtn">Afficher / Mettre à jour</button>
+        <button id="saveLocal" class="secondary">Enregistrer localement</button>
+        <button id="copyBtn" class="secondary">Copier le HTML</button>
+        <button id="clearBtn" class="secondary">Effacer</button>
+      </div>
+
+      <p class="small">Astuce : le message se mettra aussi à jour automatiquement en tapant.</p>
+    </div>
+
+    <div class="card preview">
+      <div id="messageCard" class="messageCard" style="text-align:center">
+        <div id="previewName" class="name">Ton nom</div>
+        <div id="previewMessage" class="message">Ton message apparaîtra ici — écris quelque chose dans le panneau de gauche.</div>
+      </div>
+      <div class="small">Aperçu en direct</div>
+    </div>
+
+    <footer>Page générée — modifie-la comme tu veux.</footer>
+  </div>
+
+  <script>
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+    const applyBtn = document.getElementById('applyBtn');
+    const previewName = document.getElementById('previewName');
+    const previewMessage = document.getElementById('previewMessage');
+    const alignSelect = document.getElementById('align');
+    const saveLocal = document.getElementById('saveLocal');
+    const copyBtn = document.getElementById('copyBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const messageCard = document.getElementById('messageCard');
+
+    // restore saved
+    if(localStorage.getItem('page_nom')){
+      const s = JSON.parse(localStorage.getItem('page_nom'));
+      nameInput.value = s.name || '';
+      messageInput.value = s.message || '';
+      alignSelect.value = s.align || 'center';
+      apply();
+    }
+
+    function apply(){
+      const n = nameInput.value.trim() || 'Ton nom';
+      const m = messageInput.value.trim() || 'Ton message apparaîtra ici — écris quelque chose dans le panneau de gauche.';
+      previewName.textContent = n;
+      previewMessage.textContent = m;
+      messageCard.style.textAlign = alignSelect.value;
+    }
+
+    // live preview as you type
+    nameInput.addEventListener('input', apply);
+    messageInput.addEventListener('input', apply);
+    alignSelect.addEventListener('change', apply);
+
+    applyBtn.addEventListener('click', ()=>{ apply(); alert('Aperçu mis à jour !'); });
+
+    saveLocal.addEventListener('click', ()=>{
+      const payload = { name: nameInput.value, message: messageInput.value, align: alignSelect.value };
+      localStorage.setItem('page_nom', JSON.stringify(payload));
+      alert('Enregistré localement dans votre navigateur.');
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      if(confirm('Effacer le formulaire et l\'aperçu ?')){
+        nameInput.value=''; messageInput.value=''; alignSelect.value='center'; apply();
+        localStorage.removeItem('page_nom');
+      }
+    });
+
+    copyBtn.addEventListener('click', async ()=>{
+      // create a simple HTML snippet and copy to clipboard
+      const snippet = `<div style="font-family:Inter, sans-serif;padding:20px;border-radius:10px;background:#0b1220;color:#e6eef8;max-width:600px;">\n  <h2>${escapeHtml(nameInput.value || 'Ton nom')}</h2>\n  <p>${escapeHtml(messageInput.value || '')}</p>\n</div>`;
+      try{
+        await navigator.clipboard.writeText(snippet);
+        alert('HTML copié dans le presse-papier.');
+      }catch(e){
+        prompt('Impossible de copier automatiquement. Voici le HTML — copie-le manuellement :', snippet);
+      }
+    });
+
+    function escapeHtml(str){
+      if(!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/\'/g,'&#39;').replace(/\n/g,'<br>');
+    }
+
+    // initial apply
+    apply();
+  </script>
+</body>
+</html>
